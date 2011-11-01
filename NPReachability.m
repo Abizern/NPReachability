@@ -146,42 +146,17 @@ CFStringRef NPReachabilityCopyDescription(const void *info) {
 
 #pragma mark - Singleton Methods
 
-static NPReachability *sharedInstance = nil;
-
 + (NPReachability *)sharedInstance
 {
-    if (sharedInstance == nil) {
-        sharedInstance = [[super allocWithZone:NULL] init];
-    }
+    static NPReachability *sharedInstance;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[self alloc] init];
+    });
     return sharedInstance;
 }
 
-+ (id)allocWithZone:(NSZone *)zone
-{
-    return [[self sharedInstance] retain];
-}
-
 - (id)copyWithZone:(NSZone *)zone
-{
-    return self;
-}
-
-- (id)retain
-{
-    return self;
-}
-
-- (NSUInteger)retainCount
-{
-    return NSUIntegerMax;  //denotes an object that cannot be released
-}
-
-- (void)release
-{
-    //do nothing
-}
-
-- (id)autorelease
 {
     return self;
 }

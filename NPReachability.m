@@ -77,6 +77,7 @@ CFStringRef NPReachabilityCopyDescription(const void *info) {
 		if (SCNetworkReachabilitySetCallback(_reachabilityRef, NPNetworkReachabilityCallBack, &context)) {
 			SCNetworkReachabilityScheduleWithRunLoop(_reachabilityRef, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
 		}
+        SCNetworkReachabilityGetFlags(_reachabilityRef, &currentReachabilityFlags);
 	}
 	return self;
 }

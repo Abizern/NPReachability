@@ -14,16 +14,28 @@
 
 #import "NPReachability.h"
 
+NSString *NPReachabilityChangedNotification = @"NPReachabilityChangedNotification";
+
 @interface NPReachability ()
 - (NSArray *)_handlers;
+
+@property (nonatomic, readwrite) SCNetworkReachabilityFlags currentReachabilityFlags;
 @end
 
 void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info) {
 	NPReachability *reach = (NPReachability *)info;
+    
+    // NPReachability maintains its own copy of |flags| so that KVO works 
+    // correctly. Note that +keyPathsForValuesAffectingCurrentlyReachable
+    // ensures that this also fires KVO for the |currentlyReachable| property.
+    [reach setCurrentReachabilityFlags:flags];
+    
 	NSArray *allHandlers = [reach _handlers];
 	for (void (^currHandler)(SCNetworkReachabilityFlags flags) in allHandlers) {
 		currHandler(flags);
 	}
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:NPReachabilityChangedNotification object:reach];
 }
 
 const void * NPReachabilityRetain(const void *info) {
@@ -40,6 +52,9 @@ CFStringRef NPReachabilityCopyDescription(const void *info) {
 }
 
 @implementation NPReachability
+
+@synthesize currentReachabilityFlags;
+@dynamic currentlyReachable;
 
 - (id)init {
 	if ((self = [super init])) {
@@ -97,10 +112,8 @@ CFStringRef NPReachabilityCopyDescription(const void *info) {
 	return [[self class] isReachableWithFlags:[self currentReachabilityFlags]];
 }
 
-- (SCNetworkReachabilityFlags)currentReachabilityFlags {
-    SCNetworkReachabilityFlags flags;
-	SCNetworkReachabilityGetFlags(_reachabilityRef, &flags);
-    return flags;
++ (NSSet *)keyPathsForValuesAffectingCurrentlyReachable {
+    return [NSSet setWithObject:@"currentReachabilityFlags"];
 }
 
 + (BOOL)isReachableWithFlags:(SCNetworkReachabilityFlags)flags {

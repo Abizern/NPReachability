@@ -15,6 +15,8 @@
 #import <Foundation/Foundation.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 
+extern NSString *NPReachabilityChangedNotification;
+
 @interface NPReachability : NSObject {
 	NSMutableDictionary *_handlerByOpaqueObject;
 	
@@ -23,12 +25,17 @@
 
 + (NPReachability *)sharedInstance;
 
-//Returns an opaque object used for removal later
+// Returns an opaque object used for removal later. Caution: this copies the 
+// block. If the block retains an object, you may end up with a retain cycle.
+// In that case, consider using KVO or NSNotifications instead.
 - (id)addHandler:(void (^)(SCNetworkReachabilityFlags flags))handler;
 - (void)removeHandler:(id)opaqueObject;
 
-- (BOOL)isCurrentlyReachable;
-- (SCNetworkReachabilityFlags)currentReachabilityFlags;
+// You can key-value observe |currentlyReachable| and |currentReachabilityFlags|.
+@property (nonatomic, readonly, getter=isCurrentlyReachable) BOOL currentlyReachable;
+@property (nonatomic, readonly) SCNetworkReachabilityFlags currentReachabilityFlags;
+
+// A handy class method:
 + (BOOL)isReachableWithFlags:(SCNetworkReachabilityFlags)flags;
 
 @end

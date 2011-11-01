@@ -146,6 +146,16 @@ CFStringRef NPReachabilityCopyDescription(const void *info) {
 
 #pragma mark - Singleton Methods
 
++ (void)load {
+    [super load];
+    
+    // Attempt to initialize the shared instance so that NSNotifications are 
+    // sent even if you never initialize the class
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    [NPReachability sharedInstance];
+    [pool drain];
+}
+
 + (NPReachability *)sharedInstance
 {
     static NPReachability *sharedInstance;

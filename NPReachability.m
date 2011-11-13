@@ -30,29 +30,35 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
 @end
 
 
-void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info) {
-#pragma unused(target)
-	NPReachability *reach = (__bridge NPReachability *)info;
-    
-    // NPReachability maintains its own copy of |flags| so that KVO works 
-    // correctly. Note that +keyPathsForValuesAffectingCurrentlyReachable
-    // ensures that this also fires KVO for the |currentlyReachable| property.
-    [reach setCurrentReachabilityFlags:flags];
-    
-	NSArray *allHandlers = [reach _handlers];
-	for (void (^currHandler)(SCNetworkReachabilityFlags flags) in allHandlers) {
-		currHandler(flags);
-	}
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:NPReachabilityChangedNotification object:reach];
-}
-
 @implementation NPReachability
 
 @synthesize currentReachabilityFlags;
-@dynamic currentlyReachable;
+
+#pragma mark - Singleton Methods
+
++ (void)load {
+    [super load];
+    
+    // Attempt to initialize the shared instance so that NSNotifications are 
+    // sent even if you never initialize the class
+    @autoreleasepool {
+        [NPReachability sharedInstance];
+    }
+}
+
++ (NPReachability *)sharedInstance {
+    static NPReachability *sharedInstance;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[self alloc] init];
+    });
+    return sharedInstance;
+}
+
+#pragma mark - Set up and tear down
 
 - (id)init {
+    // DO NOT USE THIS DIRECTLY USE `sharedInstance` INSTEAD
 	if (!(self = [super init])) {
         return nil;
 	}
@@ -78,9 +84,19 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
     }    
 }
 
-- (NSArray *)_handlers {
-	return [_handlerByOpaqueObject allValues];
+#pragma mark - KVO
+
++ (NSSet *)keyPathsForValuesAffectingCurrentlyReachable {
+    return [NSSet setWithObject:@"currentReachabilityFlags"];
 }
+
+#pragma mark - Synthesised accessors
+
+- (BOOL)isCurrentlyReachable {
+	return [[self class] isReachableWithFlags:[self currentReachabilityFlags]];
+}
+
+#pragma mark - Block handlers
 
 - (id)addHandler:(void (^)(SCNetworkReachabilityFlags flags))handler {
 	NSString *obj = [[NSProcessInfo processInfo] globallyUniqueString];
@@ -92,13 +108,7 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
 	[_handlerByOpaqueObject removeObjectForKey:opaqueObject];
 }
 
-- (BOOL)isCurrentlyReachable {
-	return [[self class] isReachableWithFlags:[self currentReachabilityFlags]];
-}
-
-+ (NSSet *)keyPathsForValuesAffectingCurrentlyReachable {
-    return [NSSet setWithObject:@"currentReachabilityFlags"];
-}
+#pragma mark - Reachability
 
 + (BOOL)isReachableWithFlags:(SCNetworkReachabilityFlags)flags {
 	
@@ -128,28 +138,11 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
 	return NO;
 }
 
-#pragma mark - Singleton Methods
-
-+ (void)load {
-    [super load];
-    
-    // Attempt to initialize the shared instance so that NSNotifications are 
-    // sent even if you never initialize the class
-    @autoreleasepool {
-        [NPReachability sharedInstance];
-    }
-}
-
-+ (NPReachability *)sharedInstance {
-    static NPReachability *sharedInstance;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedInstance = [[self alloc] init];
-    });
-    return sharedInstance;
-}
-
 #pragma mark - Private methods
+
+- (NSArray *)_handlers {
+	return [_handlerByOpaqueObject allValues];
+}
 
 - (void)startNotifier {
     SCNetworkReachabilityContext context = {0, (__bridge void *)self, NULL, NULL, NULL};
@@ -159,5 +152,23 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
     }
     SCNetworkReachabilityGetFlags(_reachabilityRef, &currentReachabilityFlags);
 }
+
+void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info) {
+#pragma unused(target)
+	NPReachability *reach = (__bridge NPReachability *)info;
+    
+    // NPReachability maintains its own copy of |flags| so that KVO works 
+    // correctly. Note that +keyPathsForValuesAffectingCurrentlyReachable
+    // ensures that this also fires KVO for the |currentlyReachable| property.
+    [reach setCurrentReachabilityFlags:flags];
+    
+	NSArray *allHandlers = [reach _handlers];
+	for (void (^currHandler)(SCNetworkReachabilityFlags flags) in allHandlers) {
+		currHandler(flags);
+	}
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:NPReachabilityChangedNotification object:reach];
+}
+
 
 @end

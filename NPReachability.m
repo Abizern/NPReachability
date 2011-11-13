@@ -23,7 +23,8 @@ NSString *NPReachabilityChangedNotification = @"NPReachabilityChangedNotificatio
 @end
 
 void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info) {
-	NPReachability *reach = (NPReachability *)info;
+#pragma unused(target)
+	NPReachability *reach = (__bridge NPReachability *)info;
     
     // NPReachability maintains its own copy of |flags| so that KVO works 
     // correctly. Note that +keyPathsForValuesAffectingCurrentlyReachable
@@ -36,19 +37,6 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
 	}
     
     [[NSNotificationCenter defaultCenter] postNotificationName:NPReachabilityChangedNotification object:reach];
-}
-
-const void * NPReachabilityRetain(const void *info) {
-	NPReachability *reach = (NPReachability *)info;
-	return (void*)[reach retain];
-}
-void NPReachabilityRelease(const void *info) {
-	NPReachability *reach = (NPReachability *)info;
-	[reach release];
-}
-CFStringRef NPReachabilityCopyDescription(const void *info) {
-	NPReachability *reach = (NPReachability *)info;
-	return (CFStringRef)[reach description];
 }
 
 @implementation NPReachability
@@ -67,12 +55,7 @@ CFStringRef NPReachabilityCopyDescription(const void *info) {
 		
 		_reachabilityRef = SCNetworkReachabilityCreateWithAddress(NULL, (struct sockaddr *) &zeroAddr);
 		
-		SCNetworkReachabilityContext context;
-		context.version = 0;
-		context.info = (void *)self;
-		context.retain = NPReachabilityRetain;
-		context.release = NPReachabilityRelease;
-		context.copyDescription = NPReachabilityCopyDescription;
+		SCNetworkReachabilityContext context = {0, (__bridge void *)self, NULL, NULL, NULL};
 		
 		if (SCNetworkReachabilitySetCallback(_reachabilityRef, NPNetworkReachabilityCallBack, &context)) {
 			SCNetworkReachabilityScheduleWithRunLoop(_reachabilityRef, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
@@ -86,13 +69,10 @@ CFStringRef NPReachabilityCopyDescription(const void *info) {
     if (_reachabilityRef != NULL) {
         SCNetworkReachabilityUnscheduleFromRunLoop(_reachabilityRef, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
         CFRelease(_reachabilityRef);
-        _reachabilityRef = NULL;
-    }
+}
 	
-	[_handlerByOpaqueObject release];
 	_handlerByOpaqueObject = nil;
     
-    [super dealloc];
 }
 
 - (NSArray *)_handlers {
@@ -101,7 +81,7 @@ CFStringRef NPReachabilityCopyDescription(const void *info) {
 
 - (id)addHandler:(void (^)(SCNetworkReachabilityFlags flags))handler {
 	NSString *obj = [[NSProcessInfo processInfo] globallyUniqueString];
-	[_handlerByOpaqueObject setObject:[[handler copy] autorelease] forKey:obj];
+	[_handlerByOpaqueObject setObject:[handler copy] forKey:obj];
 	return obj;
 }
 
@@ -152,9 +132,9 @@ CFStringRef NPReachabilityCopyDescription(const void *info) {
     
     // Attempt to initialize the shared instance so that NSNotifications are 
     // sent even if you never initialize the class
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    [NPReachability sharedInstance];
-    [pool drain];
+    @autoreleasepool {
+        [NPReachability sharedInstance];
+    }
 }
 
 + (NPReachability *)sharedInstance
@@ -165,11 +145,6 @@ CFStringRef NPReachabilityCopyDescription(const void *info) {
         sharedInstance = [[self alloc] init];
     });
     return sharedInstance;
-}
-
-- (id)copyWithZone:(NSZone *)zone
-{
-    return self;
 }
 
 @end

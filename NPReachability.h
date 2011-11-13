@@ -17,6 +17,8 @@
 
 extern NSString *NPReachabilityChangedNotification;
 
+typedef void (^ReachabilityHandler)(SCNetworkReachabilityFlags flags);
+
 @interface NPReachability : NSObject 
 
 // Allows KVO for `currentlyReachable` and `currentReachabilityFlags`
@@ -33,7 +35,7 @@ extern NSString *NPReachabilityChangedNotification;
 // Returns an opaque object used for removal later. Caution: this copies the 
 // block. If the block retains an object, you may end up with a retain cycle.
 // In that case, consider using KVO or NSNotifications instead.
-- (id)addHandler:(void (^)(SCNetworkReachabilityFlags flags))handler;
+- (id)addHandler:(ReachabilityHandler)handler;
 - (void)removeHandler:(id)opaqueObject;
 
 

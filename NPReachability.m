@@ -98,7 +98,7 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
 
 #pragma mark - Block handlers
 
-- (id)addHandler:(void (^)(SCNetworkReachabilityFlags flags))handler {
+- (id)addHandler:(ReachabilityHandler)handler {
 	NSString *obj = [[NSProcessInfo processInfo] globallyUniqueString];
 	[_handlerByOpaqueObject setObject:[handler copy] forKey:obj];
 	return obj;
@@ -157,16 +157,17 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
 #pragma unused(target)
 	NPReachability *reach = (__bridge NPReachability *)info;
     
-    // NPReachability maintains its own copy of |flags| so that KVO works 
-    // correctly. Note that +keyPathsForValuesAffectingCurrentlyReachable
-    // ensures that this also fires KVO for the |currentlyReachable| property.
+    // NPReachability maintains its own copy of `flags` so that KVO works 
+    // correctly. Note that `+keyPathsForValuesAffectingCurrentlyReachable`
+    // ensures that this also fires KVO for the `currentlyReachable` property.
     [reach setCurrentReachabilityFlags:flags];
     
 	NSArray *allHandlers = [reach _handlers];
-	for (void (^currHandler)(SCNetworkReachabilityFlags flags) in allHandlers) {
+	for (ReachabilityHandler currHandler in allHandlers) {
 		currHandler(flags);
 	}
     
+    // Post a notification - blocks are not always used.
     [[NSNotificationCenter defaultCenter] postNotificationName:NPReachabilityChangedNotification object:reach];
 }
 

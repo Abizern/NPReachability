@@ -17,13 +17,18 @@
 
 extern NSString *NPReachabilityChangedNotification;
 
-@interface NPReachability : NSObject {
-	NSMutableDictionary *_handlerByOpaqueObject;
-	
-	SCNetworkReachabilityRef _reachabilityRef;
-}
+@interface NPReachability : NSObject 
 
+// Allows KVO for `currentlyReachable` and `currentReachabilityFlags`
+@property (nonatomic, readonly, getter=isCurrentlyReachable) BOOL currentlyReachable;
+@property (nonatomic, readonly) SCNetworkReachabilityFlags currentReachabilityFlags;
+
+// Singleton initialiser
 + (NPReachability *)sharedInstance;
+
+// A handy class method:
++ (BOOL)isReachableWithFlags:(SCNetworkReachabilityFlags)flags;
+
 
 // Returns an opaque object used for removal later. Caution: this copies the 
 // block. If the block retains an object, you may end up with a retain cycle.
@@ -31,11 +36,5 @@ extern NSString *NPReachabilityChangedNotification;
 - (id)addHandler:(void (^)(SCNetworkReachabilityFlags flags))handler;
 - (void)removeHandler:(id)opaqueObject;
 
-// You can key-value observe |currentlyReachable| and |currentReachabilityFlags|.
-@property (nonatomic, readonly, getter=isCurrentlyReachable) BOOL currentlyReachable;
-@property (nonatomic, readonly) SCNetworkReachabilityFlags currentReachabilityFlags;
-
-// A handy class method:
-+ (BOOL)isReachableWithFlags:(SCNetworkReachabilityFlags)flags;
 
 @end

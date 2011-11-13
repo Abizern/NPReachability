@@ -16,11 +16,19 @@
 
 NSString *NPReachabilityChangedNotification = @"NPReachabilityChangedNotification";
 
-@interface NPReachability ()
+@interface NPReachability () {
+    NSMutableDictionary *_handlerByOpaqueObject;
+    SCNetworkReachabilityRef _reachabilityRef;
+}
+
 - (NSArray *)_handlers;
+- (void)startNotifier;
+
+void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info); 
 
 @property (nonatomic, readwrite) SCNetworkReachabilityFlags currentReachabilityFlags;
 @end
+
 
 void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info) {
 #pragma unused(target)
@@ -45,23 +53,21 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
 @dynamic currentlyReachable;
 
 - (id)init {
-	if ((self = [super init])) {
-		_handlerByOpaqueObject = [[NSMutableDictionary alloc] init];
-		
-		struct sockaddr zeroAddr;
-		bzero(&zeroAddr, sizeof(zeroAddr));
-		zeroAddr.sa_len = sizeof(zeroAddr);
-		zeroAddr.sa_family = AF_INET;
-		
-		_reachabilityRef = SCNetworkReachabilityCreateWithAddress(NULL, (struct sockaddr *) &zeroAddr);
-		
-		SCNetworkReachabilityContext context = {0, (__bridge void *)self, NULL, NULL, NULL};
-		
-		if (SCNetworkReachabilitySetCallback(_reachabilityRef, NPNetworkReachabilityCallBack, &context)) {
-			SCNetworkReachabilityScheduleWithRunLoop(_reachabilityRef, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
-		}
-        SCNetworkReachabilityGetFlags(_reachabilityRef, &currentReachabilityFlags);
+	if (!(self = [super init])) {
+        return nil;
 	}
+    
+    _handlerByOpaqueObject = [[NSMutableDictionary alloc] init];
+		
+    struct sockaddr zeroAddr;
+    bzero(&zeroAddr, sizeof(zeroAddr));
+    zeroAddr.sa_len = sizeof(zeroAddr);
+    zeroAddr.sa_family = AF_INET;
+    
+    _reachabilityRef = SCNetworkReachabilityCreateWithAddress(NULL, (struct sockaddr *) &zeroAddr);
+    
+    [self startNotifier];
+    
 	return self;
 }
 
@@ -69,10 +75,7 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
     if (_reachabilityRef != NULL) {
         SCNetworkReachabilityUnscheduleFromRunLoop(_reachabilityRef, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
         CFRelease(_reachabilityRef);
-}
-	
-	_handlerByOpaqueObject = nil;
-    
+    }    
 }
 
 - (NSArray *)_handlers {
@@ -106,7 +109,7 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
 	
 	if ((flags & kSCNetworkReachabilityFlagsConnectionRequired) == 0) {
 		// if target host is reachable and no connection is required
-		//  then we'll assume (for now) that your on Wi-Fi
+		//  then we'll assume (for now) that you're on Wi-Fi
 		return YES;
 	}
 	
@@ -137,14 +140,24 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
     }
 }
 
-+ (NPReachability *)sharedInstance
-{
++ (NPReachability *)sharedInstance {
     static NPReachability *sharedInstance;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         sharedInstance = [[self alloc] init];
     });
     return sharedInstance;
+}
+
+#pragma mark - Private methods
+
+- (void)startNotifier {
+    SCNetworkReachabilityContext context = {0, (__bridge void *)self, NULL, NULL, NULL};
+    
+    if (SCNetworkReachabilitySetCallback(_reachabilityRef, NPNetworkReachabilityCallBack, &context)) {
+        SCNetworkReachabilityScheduleWithRunLoop(_reachabilityRef, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
+    }
+    SCNetworkReachabilityGetFlags(_reachabilityRef, &currentReachabilityFlags);
 }
 
 @end

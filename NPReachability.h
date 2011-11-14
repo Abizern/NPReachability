@@ -17,7 +17,7 @@
 #import <Foundation/Foundation.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 @class NPReachability;
-extern NSString *NPReachabilityChangedNotification;
+extern NSString * const NPReachabilityChangedNotification;
 
 // Handler for changes in reachability.
 typedef void (^ReachabilityHandler)(NPReachability *curReach);

@@ -16,7 +16,7 @@
 
 #import "NPReachability.h"
 
-NSString *NPReachabilityChangedNotification = @"NPReachabilityChangedNotification";
+NSString * const NPReachabilityChangedNotification = @"NPReachabilityChangedNotification";
 
 @interface NPReachability () {
 @private

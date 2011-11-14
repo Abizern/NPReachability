@@ -1,5 +1,7 @@
 //
-//  NPReachability.m
+//  NPReachability.h
+//
+//  Updated and converted to ARC by Abizer Nasir.
 //  
 //  Copyright (c) 2011, Nick Paulson
 //  All rights reserved.
@@ -17,6 +19,7 @@
 NSString *NPReachabilityChangedNotification = @"NPReachabilityChangedNotification";
 
 @interface NPReachability () {
+@private
     NSMutableDictionary *_handlerByOpaqueObject;
     SCNetworkReachabilityRef _reachabilityRef;
 }
@@ -31,8 +34,7 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
 
 
 @implementation NPReachability
-
-@synthesize currentReachabilityFlags;
+@synthesize currentReachabilityFlags = _currentReachabilityFlags;
 
 #pragma mark - Singleton Methods
 
@@ -58,7 +60,7 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
 #pragma mark - Set up and tear down
 
 - (id)init {
-    // DO NOT USE THIS DIRECTLY USE `sharedInstance` INSTEAD
+    // DO NOT USE THIS DIRECTLY. USE `sharedInstance` INSTEAD
 	if (!(self = [super init])) {
         return nil;
 	}
@@ -145,12 +147,12 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
 }
 
 - (void)startNotifier {
-    SCNetworkReachabilityContext context = {0, (__bridge void *)self, NULL, NULL, NULL};
+    SCNetworkReachabilityContext context = {0, (__bridge void *)(self), NULL, NULL, NULL};
     
     if (SCNetworkReachabilitySetCallback(_reachabilityRef, NPNetworkReachabilityCallBack, &context)) {
         SCNetworkReachabilityScheduleWithRunLoop(_reachabilityRef, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
     }
-    SCNetworkReachabilityGetFlags(_reachabilityRef, &currentReachabilityFlags);
+    SCNetworkReachabilityGetFlags(_reachabilityRef, &_currentReachabilityFlags);
 }
 
 void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info) {
@@ -164,7 +166,7 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
     
 	NSArray *allHandlers = [reach _handlers];
 	for (ReachabilityHandler currHandler in allHandlers) {
-		currHandler(flags);
+		currHandler(reach);
 	}
     
     // Post a notification - blocks are not always used.

@@ -1,5 +1,7 @@
 //
 //  NPReachability.h
+//
+//  Updated and converted to ARC by Abizer Nasir.
 //  
 //  Copyright (c) 2011, Nick Paulson
 //  All rights reserved.
@@ -14,10 +16,11 @@
 
 #import <Foundation/Foundation.h>
 #import <SystemConfiguration/SystemConfiguration.h>
-
+@class NPReachability;
 extern NSString *NPReachabilityChangedNotification;
 
-typedef void (^ReachabilityHandler)(SCNetworkReachabilityFlags flags);
+// Handler for changes in reachability.
+typedef void (^ReachabilityHandler)(NPReachability *curReach);
 
 @interface NPReachability : NSObject 
 

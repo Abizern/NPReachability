@@ -22,11 +22,18 @@ extern NSString *NPReachabilityChangedNotification;
 // Handler for changes in reachability.
 typedef void (^ReachabilityHandler)(NPReachability *curReach);
 
+typedef enum {
+	NPRNotReachable = 0,
+	NPRReachableViaWiFi,
+	NPRReachableViaWWAN
+} NPRNetworkStatus;
+
 @interface NPReachability : NSObject 
 
 // Allows KVO for `currentlyReachable` and `currentReachabilityFlags`
 @property (nonatomic, readonly, getter=isCurrentlyReachable) BOOL currentlyReachable;
 @property (nonatomic, readonly) SCNetworkReachabilityFlags currentReachabilityFlags;
+@property (nonatomic, readonly) NPRNetworkStatus currentNetworkStatus;
 
 // Singleton initialiser
 + (NPReachability *)sharedInstance;

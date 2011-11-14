@@ -92,10 +92,37 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
     return [NSSet setWithObject:@"currentReachabilityFlags"];
 }
 
++ (NSSet *)keyPathsForValuesAffectingCurrentNetworkStatus {
+    return [NSSet setWithObject:@"currentReachabilityFlags"];
+}
+
 #pragma mark - Synthesised accessors
 
 - (BOOL)isCurrentlyReachable {
-	return [[self class] isReachableWithFlags:[self currentReachabilityFlags]];
+	return [[self class] isReachableWithFlags:_currentReachabilityFlags];
+}
+
+- (NPRNetworkStatus)currentNetworkStatus {
+    NPRNetworkStatus retVal = NPRNotReachable;
+    
+    if (!([[self class] isReachableWithFlags:_currentReachabilityFlags])) {
+        // Nothing reachable
+        return retVal;
+    }
+    
+    if (_currentReachabilityFlags & kSCNetworkReachabilityFlagsIsWWAN) {
+        // There is a connection, and it isn't Wi-Fi, so...
+        return NPRReachableViaWWAN;
+    }
+
+    if (!(_currentReachabilityFlags & kSCNetworkReachabilityFlagsConnectionRequired)) {
+		// if target host is reachable and no connection is required
+		//  then we'll assume (for now) that you're on Wi-Fi
+		return NPRReachableViaWiFi;
+	}
+        
+    // If we get here, something else is going on. I'm going to be lazy and safe
+    return retVal;
 }
 
 #pragma mark - Block handlers
@@ -161,7 +188,8 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
     
     // NPReachability maintains its own copy of `flags` so that KVO works 
     // correctly. Note that `+keyPathsForValuesAffectingCurrentlyReachable`
-    // ensures that this also fires KVO for the `currentlyReachable` property.
+    // ensures that this also fires KVO for the `currentlyReachable` property
+    // and the `currentNetworkStatus` property.
     [reach setCurrentReachabilityFlags:flags];
     
 	NSArray *allHandlers = [reach _handlers];

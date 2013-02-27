@@ -6,5 +6,6 @@ Pod::Spec.new do |s|
   s.license      = 'MIT'
   s.author       = { "Abizer Nasir" => "abizern@abizern.org" }
   s.source       = { :git => "https://github.com/Abizern/NPReachability.git", :commit => "455296615bb93ff95a6d67b468737d0a0678ce59" }
+  s.frameworks   = 'SystemConfiguration'
   s.source_files = '*.{h,m}'
 end

@@ -110,10 +110,12 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
         return retVal;
     }
     
+#if TARGET_OS_IPHONE
     if (_currentReachabilityFlags & kSCNetworkReachabilityFlagsIsWWAN) {
         // There is a connection, and it isn't Wi-Fi, so...
         return NPRReachableViaWWAN;
     }
+#endif
 
     if (!(_currentReachabilityFlags & kSCNetworkReachabilityFlagsConnectionRequired)) {
 		// if target host is reachable and no connection is required

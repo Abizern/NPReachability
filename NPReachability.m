@@ -169,6 +169,25 @@ NSString * const NPReachabilityChangedNotification = @"NPReachabilityChangedNoti
 	return NO;
 }
 
+- (NSString *)reachabilityFlagsAsString {
+    SCNetworkReachabilityFlags flags = self.currentReachabilityFlags;
+
+    NSString *debugString = [NSString stringWithFormat:@"Reachability Flag Status: %c%c %c%c%c%c%c%c%c\n",
+                             (flags & kSCNetworkReachabilityFlagsIsWWAN)			   ? 'W' : '-',
+                             (flags & kSCNetworkReachabilityFlagsReachable)            ? 'R' : '-',
+
+                             (flags & kSCNetworkReachabilityFlagsTransientConnection)  ? 't' : '-',
+                             (flags & kSCNetworkReachabilityFlagsConnectionRequired)   ? 'c' : '-',
+                             (flags & kSCNetworkReachabilityFlagsConnectionOnTraffic)  ? 'C' : '-',
+                             (flags & kSCNetworkReachabilityFlagsInterventionRequired) ? 'i' : '-',
+                             (flags & kSCNetworkReachabilityFlagsConnectionOnDemand)   ? 'D' : '-',
+                             (flags & kSCNetworkReachabilityFlagsIsLocalAddress)       ? 'l' : '-',
+                             (flags & kSCNetworkReachabilityFlagsIsDirect)             ? 'd' : '-'
+                             ];
+
+    return debugString;
+}
+
 #pragma mark - Private methods
 
 - (NSArray *)handlers_ {

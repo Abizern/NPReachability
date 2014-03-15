@@ -150,8 +150,31 @@ extern const struct NPReachabilityKeysStruct {
 
  @param opaqueObject The opaque object that was returned by the call `addHandler:` that was used when adding the handler block.
  */
-
 - (void)removeHandler:(id)opaqueObject;
+
+/**
+ A string description of the current SCNetworkReachability flags.
+ 
+ Useful for logging/debugging.
+ 
+ The string is of the form -- -------
+ 
+ Where the provided values are:
+ 
+ W - kSCNetworkReachabilityFlagsIsWWAN
+ R - kSCNetworkReachabilityFlagsReachable
+ 
+ t - kSCNetworkReachabilityFlagsTransientConnection
+ c - kSCNetworkReachabilityFlagsConnectionRequired
+ C - kSCNetworkReachabilityFlagsConnectionOnTraffic
+ i - kSCNetworkReachabilityFlagsInterventionRequired
+ D - kSCNetworkReachabilityFlagsConnectionOnDemand
+ l - kSCNetworkReachabilityFlagsIsLocalAddress
+ d - kSCNetworkReachabilityFlagsIsDirect
+
+ @return A summary string of the current reachability flags
+ */
+- (NSString *)reachabilityFlagsAsString;
 
 
 @end

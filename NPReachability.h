@@ -80,11 +80,11 @@ typedef void (^ReachabilityHandler)(NPReachability *curReach);
 /**
  An enum for the Network status
  */
-typedef enum {
-	NPRNotReachable = 0,
+typedef NS_ENUM(NSUInteger, NPRNetworkStatus) {
+    NPRNotReachable,
 	NPRReachableViaWiFi,
 	NPRReachableViaWWAN
-} NPRNetworkStatus;
+};
 
 
 @interface NPReachability : NSObject 

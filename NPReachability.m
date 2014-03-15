@@ -16,6 +16,13 @@
 
 #import "NPReachability.h"
 
+const struct NPReachabilityKeysStruct NPReachabilityKeys = {
+    .currentlyReachable = @"currentlyReachable",
+    .currentReachabilityFlags = @"currentReachabilityFlags",
+    .currentNetworkStatus = @"currentNetworkStatus"
+
+};
+
 NSString * const NPReachabilityChangedNotification = @"NPReachabilityChangedNotification";
 
 @interface NPReachability ()
@@ -82,11 +89,11 @@ NSString * const NPReachabilityChangedNotification = @"NPReachabilityChangedNoti
 #pragma mark - KVO
 
 + (NSSet *)keyPathsForValuesAffectingCurrentlyReachable {
-    return [NSSet setWithObject:@"currentReachabilityFlags"];
+    return [NSSet setWithObject:NPReachabilityKeys.currentReachabilityFlags];
 }
 
 + (NSSet *)keyPathsForValuesAffectingCurrentNetworkStatus {
-    return [NSSet setWithObject:@"currentReachabilityFlags"];
+    return [NSSet setWithObject:NPReachabilityKeys.currentReachabilityFlags];
 }
 
 #pragma mark - Custom accessors

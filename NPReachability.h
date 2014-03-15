@@ -66,7 +66,7 @@
 @class NPReachability;
 
 /**
- The Name of the NSNotification that is  posted when the reachability changes. the userInfo object is the current instance of NPReachability
+ The Name of the NSNotification that is  posted when the reachability changes. the notification object is the current instance of NPReachability
  */
 extern NSString * const NPReachabilityChangedNotification;
 
@@ -85,6 +85,15 @@ typedef NS_ENUM(NSUInteger, NPRNetworkStatus) {
 	NPRReachableViaWiFi,
 	NPRReachableViaWWAN
 };
+
+/**
+ Mike Ash style constant structures for keys
+ */
+extern const struct NPReachabilityKeysStruct {
+    __unsafe_unretained NSString *currentlyReachable;
+    __unsafe_unretained NSString *currentReachabilityFlags;
+    __unsafe_unretained NSString *currentNetworkStatus;
+} NPReachabilityKeys;
 
 
 @interface NPReachability : NSObject 

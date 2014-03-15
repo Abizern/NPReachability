@@ -66,7 +66,7 @@
 @class NPReachability;
 
 /**
- The Name of the NSNotification that is  posted when the reachability changes
+ The Name of the NSNotification that is  posted when the reachability changes. the userInfo object is the current instance of NPReachability
  */
 extern NSString * const NPReachabilityChangedNotification;
 
@@ -135,7 +135,9 @@ typedef NS_ENUM(NSUInteger, NPRNetworkStatus) {
 - (id)addHandler:(ReachabilityHandler)handler;
 
 /**
- Removes a reachability changed handler from the object
+ Removes a reachability changed handler from the object.
+ 
+ It is safe to attempt to remove an object that has already been removed.
 
  @param opaqueObject The opaque object that was returned by the call `addHandler:` that was used when adding the handler block.
  */

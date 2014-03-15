@@ -18,23 +18,16 @@
 
 NSString * const NPReachabilityChangedNotification = @"NPReachabilityChangedNotification";
 
-@interface NPReachability () {
-@private
-    NSMutableDictionary *_handlerByOpaqueObject;
-    SCNetworkReachabilityRef _reachabilityRef;
-}
+@interface NPReachability ()
 
-- (NSArray *)_handlers;
-- (void)startNotifier;
-
-void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info); 
-
+@property (strong, nonatomic) NSMutableDictionary *handlerByOpaqueObject;
+@property (assign, nonatomic) SCNetworkReachabilityRef reachabilityRef;
 @property (nonatomic, readwrite) SCNetworkReachabilityFlags currentReachabilityFlags;
+
 @end
 
 
 @implementation NPReachability
-@synthesize currentReachabilityFlags = _currentReachabilityFlags;
 
 #pragma mark - Singleton Methods
 
@@ -62,7 +55,7 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
 - (id)init {
     // DO NOT USE THIS DIRECTLY. USE `sharedInstance` INSTEAD
 	if (!(self = [super init])) {
-        return nil;
+        return nil; // Bail!
 	}
     
     _handlerByOpaqueObject = [[NSMutableDictionary alloc] init];
@@ -96,18 +89,18 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
     return [NSSet setWithObject:@"currentReachabilityFlags"];
 }
 
-#pragma mark - Synthesised accessors
+#pragma mark - Custom accessors
 
 - (BOOL)isCurrentlyReachable {
-	return [[self class] isReachableWithFlags:_currentReachabilityFlags];
+	return [[self class] isReachableWithFlags:self.currentReachabilityFlags];
 }
 
 - (NPRNetworkStatus)currentNetworkStatus {
-    NPRNetworkStatus retVal = NPRNotReachable;
+    NPRNetworkStatus currentStatus = NPRNotReachable;
     
-    if (!([[self class] isReachableWithFlags:_currentReachabilityFlags])) {
+    if (!([[self class] isReachableWithFlags:self.currentReachabilityFlags])) {
         // Nothing reachable
-        return retVal;
+        return currentStatus;
     }
     
 #if TARGET_OS_IPHONE
@@ -124,19 +117,19 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
 	}
         
     // If we get here, something else is going on. I'm going to be lazy and safe
-    return retVal;
+    return currentStatus;
 }
 
 #pragma mark - Block handlers
 
 - (id)addHandler:(ReachabilityHandler)handler {
 	NSString *obj = [[NSProcessInfo processInfo] globallyUniqueString];
-	[_handlerByOpaqueObject setObject:[handler copy] forKey:obj];
+	[self.handlerByOpaqueObject setObject:[handler copy] forKey:obj];
 	return obj;
 }
 
 - (void)removeHandler:(id)opaqueObject {
-	[_handlerByOpaqueObject removeObjectForKey:opaqueObject];
+	[self.handlerByOpaqueObject removeObjectForKey:opaqueObject];
 }
 
 #pragma mark - Reachability
@@ -171,8 +164,8 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
 
 #pragma mark - Private methods
 
-- (NSArray *)_handlers {
-	return [_handlerByOpaqueObject allValues];
+- (NSArray *)handlers_ {
+	return [self.handlerByOpaqueObject allValues];
 }
 
 - (void)startNotifier {
@@ -194,7 +187,8 @@ void NPNetworkReachabilityCallBack(SCNetworkReachabilityRef target, SCNetworkRea
     // and the `currentNetworkStatus` property.
     [reach setCurrentReachabilityFlags:flags];
     
-	NSArray *allHandlers = [reach _handlers];
+	NSArray *allHandlers = [reach handlers_];
+    
 	for (ReachabilityHandler currHandler in allHandlers) {
 		currHandler(reach);
 	}

@@ -3,27 +3,36 @@
 - KVO support added by [Adam Ernst](http://www.adamernst.com/)
 - ARC support and changes to the interface by [Abizer Nasir](http://abizern.org)
 
-NPReachability is an extension of Apple's Reachability class which provides information about the network status.
+NPReachability is an evolution of Apple's Reachability class that provides
+information about the network status.
 
-It is written as a singleton so make sure you reference it as:
+As well as supporting the original's Notification based monitoring, this class
+supports both KVO and Blocks, so you can choose whichever way of handling
+changes as your application requires.
 
-    NPReachability *reachability = [NPReachability sharedInstance];
+This class is written as a singleton, so be sure to reference it as
 
-This class can take a block handler to process changes in status, but also supports KVO and traditional notifications as well. It is written to support Automatic Reference Counting (ARC)
+NPReachability *reachability = [NPReachability sharedInstance];
 
+Make sure you maintain a strong reference to at least one object of this class
+or else ARC will clean it up underneach you.
+ 
 ## Block support
 
 Handlers are declared as
 
     typedef void (^ReachabilityHandler)(NPReachability *curReach);
 
-This takes the NPReachability object as a parameter. As originally written this class passed the `SCNetworkReachabilityFlags` as a parameter, but you can get that and more by messaging the object directly
+This takes the NPReachability object as a parameter. As originally written
+this class passed the `SCNetworkReachabilityFlags` as a parameter, but you can
+get that and more by messaging the object directly
 
 You add blocks to be executed when the network status changes by using:
 
     - (id)addHandler:(ReachabilityHandler)handler;
 
-This returns an opaque object which you should use to remove the handler at the appropriate time (in a `dealloc`, say) with:
+This returns an opaque object which you should use to remove the handler at the
+appropriate time (in a `dealloc`, say) with:
 
     - (void)removeHandler:(id)opaqueObject;
 
@@ -36,12 +45,14 @@ Two properties can observed for changes to the network status:
 
 ## NSNotification
 
-When the network status changes a `NPReachabilityChangedNotification` is sent with the NPReachability instance as the notification object.
+When the network status changes a `NPReachabilityChangedNotification` is sent
+with the NPReachability instance as the notification object.
 
 ## Dependencies
 
-- Xcode 4.2+ for ARC support and compatibility libraries
-- THe SystemConfiguration Framework should be added to your projects
+- Xcode 5.0+ for ARC support, automatic synthesis and compatibility
+  libraries. This might work for Xcode 4.2+, but I haven't been able to test it.
+- The SystemConfiguration Framework should be added to your project.
 
 Please use and improve!
 

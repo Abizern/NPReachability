@@ -54,6 +54,33 @@ with the NPReachability instance as the notification object.
   libraries. This might work for Xcode 4.2+, but I haven't been able to test it.
 - The SystemConfiguration Framework should be added to your project.
 
-Please use and improve!
+## Usage
+
+### Git
+
+Add the project as a submodule to your project's repository and add the
+`NPReachability.h` and `NPReachability.m` files to your project.
+
+### CocoaPods
+
+This is also available as a CocoaPod. If you're a Podder, then you already know
+what to do to add this to your project.
+
+### Direct files
+
+Just add the `NPReachability.h` and `NPReachability.m` files to your
+project. But I think the other any of the previous two methods is preferable to
+this.
+
+## Example
+
+Apple provided the Reachability Sample Code to demonstrate the use of their
+`Reachability` class. To see how to use this Class instead have a look at
+[NPReachability-Example](https://github.com/Abizern/NPReachability-Example)
+which shows the same project using `NPReachability` instead.
+
+## And finally...
+
+Please use and improve! Patched accepted, or create an issue.
 
 I'd love it if you could send me a note as to which app you're using it with!

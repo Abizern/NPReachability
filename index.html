@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <title>Npreachability by Abizern</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>Npreachability</h1>
+        <h2>Reachability without the suck.</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/Abizern/NPReachability/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/Abizern/NPReachability/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/Abizern/NPReachability" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h1>
+<a name="npreachability" class="anchor" href="#npreachability"><span class="octicon octicon-link"></span></a>NPReachability</h1>
+
+<ul>
+<li>Originally By <a href="http://twitter.com/nckplsn">Nick Paulson</a>
+</li>
+<li>KVO support added by <a href="http://www.adamernst.com/">Adam Ernst</a>
+</li>
+<li>ARC support and changes to the interface by
+<a href="http://abizern.org">Abizer Nasir</a>, and now I seem to be the project
+maintainer.</li>
+</ul><p>NPReachability is an evolution of Apple's Reachability class that provides
+information about the network status.</p>
+
+<p>As well as supporting the original's Notification based monitoring, this class
+supports both KVO and Blocks, so you can choose whichever way of handling
+changes as your application requires.</p>
+
+<p>This class is written as a singleton, so be sure to reference it as</p>
+
+<p>NPReachability *reachability = [NPReachability sharedInstance];</p>
+
+<p>Make sure you maintain a strong reference to at least one object of this class
+or else ARC will clean it up underneach you.</p>
+
+<h2>
+<a name="block-support" class="anchor" href="#block-support"><span class="octicon octicon-link"></span></a>Block support</h2>
+
+<p>Handlers are declared as</p>
+
+<pre><code>typedef void (^ReachabilityHandler)(NPReachability *curReach);
+</code></pre>
+
+<p>This takes the NPReachability object as a parameter. As originally written
+this class passed the <code>SCNetworkReachabilityFlags</code> as a parameter, but you can
+get that and more by messaging the object directly</p>
+
+<p>You add blocks to be executed when the network status changes by using:</p>
+
+<pre><code>- (id)addHandler:(ReachabilityHandler)handler;
+</code></pre>
+
+<p>This returns an opaque object which you should use to remove the handler at the
+appropriate time (in a <code>dealloc</code>, say) with:</p>
+
+<pre><code>- (void)removeHandler:(id)opaqueObject;
+</code></pre>
+
+<h2>
+<a name="kvo-support" class="anchor" href="#kvo-support"><span class="octicon octicon-link"></span></a>KVO support</h2>
+
+<p>Two properties can observed for changes to the network status:</p>
+
+<pre><code>@property (nonatomic, readonly, getter=isCurrentlyReachable) BOOL currentlyReachable;
+@property (nonatomic, readonly) SCNetworkReachabilityFlags currentReachabilityFlags;
+</code></pre>
+
+<h2>
+<a name="nsnotification" class="anchor" href="#nsnotification"><span class="octicon octicon-link"></span></a>NSNotification</h2>
+
+<p>When the network status changes a <code>NPReachabilityChangedNotification</code> is sent
+with the NPReachability instance as the notification object.</p>
+
+<h2>
+<a name="dependencies" class="anchor" href="#dependencies"><span class="octicon octicon-link"></span></a>Dependencies</h2>
+
+<ul>
+<li>Xcode 5.0+ for ARC support, automatic synthesis and compatibility
+libraries. This might work for Xcode 4.2+, but I haven't been able to test it.</li>
+<li>The SystemConfiguration Framework should be added to your project.</li>
+</ul><h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<h3>
+<a name="git" class="anchor" href="#git"><span class="octicon octicon-link"></span></a>Git</h3>
+
+<p>Add the project as a submodule to your project's repository and add the
+<code>NPReachability.h</code> and <code>NPReachability.m</code> files to your project.</p>
+
+<h3>
+<a name="cocoapods" class="anchor" href="#cocoapods"><span class="octicon octicon-link"></span></a>CocoaPods</h3>
+
+<p>This is also available as a CocoaPod. If you're a Podder, then you already know
+what to do to add this to your project.</p>
+
+<h3>
+<a name="direct-files" class="anchor" href="#direct-files"><span class="octicon octicon-link"></span></a>Direct files</h3>
+
+<p>Just add the <code>NPReachability.h</code> and <code>NPReachability.m</code> files to your
+project. But I think any of the previous two methods are preferable to
+this.</p>
+
+<h2>
+<a name="example" class="anchor" href="#example"><span class="octicon octicon-link"></span></a>Example</h2>
+
+<p>Apple provided the Reachability Sample Code to demonstrate the use of their
+<code>Reachability</code> class. To see how to use this Class instead have a look at
+<a href="https://github.com/Abizern/NPReachability-Example">NPReachability-Example</a>
+which shows the same project using <code>NPReachability</code> instead.</p>
+
+<h2>
+<a name="and-finally" class="anchor" href="#and-finally"><span class="octicon octicon-link"></span></a>And finally...</h2>
+
+<p>Please use and improve! Patches accepted, or create an issue.</p>
+
+<p>I'd love it if you could send me a note as to which app you're using it with!</p>
+      </section>
+    </div>
+
+    
+  </body>
+</html>

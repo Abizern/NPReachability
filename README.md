@@ -1,7 +1,10 @@
 #NPReachability
 - Originally By [Nick Paulson](http://twitter.com/nckplsn)
 - KVO support added by [Adam Ernst](http://www.adamernst.com/)
-- ARC support and changes to the interface by [Abizer Nasir](http://abizern.org)
+- ARC support and changes to the interface by
+  [Abizer Nasir](http://abizern.org), and now I seem to be the project
+  maintainer.
+  
 
 NPReachability is an evolution of Apple's Reachability class that provides
 information about the network status.
@@ -69,7 +72,7 @@ what to do to add this to your project.
 ### Direct files
 
 Just add the `NPReachability.h` and `NPReachability.m` files to your
-project. But I think the other any of the previous two methods is preferable to
+project. But I think any of the previous two methods are preferable to
 this.
 
 ## Example
@@ -81,6 +84,6 @@ which shows the same project using `NPReachability` instead.
 
 ## And finally...
 
-Please use and improve! Patched accepted, or create an issue.
+Please use and improve! Patches accepted, or create an issue.
 
 I'd love it if you could send me a note as to which app you're using it with!

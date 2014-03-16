@@ -172,8 +172,18 @@ NSString * const NPReachabilityChangedNotification = @"NPReachabilityChangedNoti
 - (NSString *)reachabilityFlagsAsString {
     SCNetworkReachabilityFlags flags = self.currentReachabilityFlags;
 
-    NSString *debugString = [NSString stringWithFormat:@"Reachability Flag Status: %c%c %c%c%c%c%c%c%c\n",
+    NSString *formatString;
+
+#if TARGET_OS_IPHONE
+    formatString = @"Reachability Flag Status: %c%c %c%c%c%c%c%c%c\n";
+#else
+    formatString = @"Reachability Flag Status: %c %c%c%c%c%c%c%c\n";
+#endif
+
+    NSString *debugString = [NSString stringWithFormat:formatString,
+#if TARGET_OS_IPHONE
                              (flags & kSCNetworkReachabilityFlagsIsWWAN)			   ? 'W' : '-',
+#endif
                              (flags & kSCNetworkReachabilityFlagsReachable)            ? 'R' : '-',
 
                              (flags & kSCNetworkReachabilityFlagsTransientConnection)  ? 't' : '-',

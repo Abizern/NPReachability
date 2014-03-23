@@ -7,7 +7,9 @@
   
 
 NPReachability is an evolution of Apple's Reachability class that provides
-information about the network status.
+information about the network status. It has a slightly simpler interface; more
+concerned with the changes to the network status rather than monitoring a
+particular URL.
 
 As well as supporting the original's Notification based monitoring, this class
 supports both KVO and Blocks, so you can choose whichever way of handling

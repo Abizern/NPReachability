@@ -17,7 +17,7 @@ changes as your application requires.
 
 This class is written as a singleton, so be sure to reference it as
 
-NPReachability *reachability = [NPReachability sharedInstance];
+    NPReachability *reachability = [NPReachability sharedInstance];
 
 Make sure you maintain a strong reference to at least one object of this class
 or else ARC will clean it up underneach you.
@@ -46,7 +46,7 @@ appropriate time (in a `dealloc`, say) with:
 Two properties can observed for changes to the network status:
 
     @property (nonatomic, readonly, getter=isCurrentlyReachable) BOOL currentlyReachable;
-	@property (nonatomic, readonly) SCNetworkReachabilityFlags currentReachabilityFlags;
+    @property (nonatomic, readonly) SCNetworkReachabilityFlags currentReachabilityFlags;
 
 ## NSNotification
 

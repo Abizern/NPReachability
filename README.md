@@ -17,7 +17,9 @@ changes as your application requires.
 
 This class is written as a singleton, so be sure to reference it as
 
-    NPReachability *reachability = [NPReachability sharedInstance];
+```objc
+NPReachability *reachability = [NPReachability sharedInstance];
+```
 
 Make sure you maintain a strong reference to at least one object of this class
 or else ARC will clean it up underneach you.
@@ -26,7 +28,9 @@ or else ARC will clean it up underneach you.
 
 Handlers are declared as
 
-    typedef void (^ReachabilityHandler)(NPReachability *curReach);
+```objc
+typedef void (^ReachabilityHandler)(NPReachability *curReach);
+```
 
 This takes the NPReachability object as a parameter. As originally written
 this class passed the `SCNetworkReachabilityFlags` as a parameter, but you can
@@ -34,19 +38,25 @@ get that and more by messaging the object directly
 
 You add blocks to be executed when the network status changes by using:
 
-    - (id)addHandler:(ReachabilityHandler)handler;
+```objc
+- (id)addHandler:(ReachabilityHandler)handler;
+```
 
 This returns an opaque object which you should use to remove the handler at the
 appropriate time (in a `dealloc`, say) with:
 
-    - (void)removeHandler:(id)opaqueObject;
+```objc
+- (void)removeHandler:(id)opaqueObject;
+```
 
 ## KVO support
 
 Two properties can observed for changes to the network status:
 
-    @property (nonatomic, readonly, getter=isCurrentlyReachable) BOOL currentlyReachable;
-    @property (nonatomic, readonly) SCNetworkReachabilityFlags currentReachabilityFlags;
+```objc
+@property (nonatomic, readonly, getter=isCurrentlyReachable) BOOL currentlyReachable;
+@property (nonatomic, readonly) SCNetworkReachabilityFlags currentReachabilityFlags;
+```
 
 ## NSNotification
 

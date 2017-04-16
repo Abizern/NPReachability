@@ -1,4 +1,4 @@
-#NPReachability
+# NPReachability
 - Originally By [Nick Paulson](http://twitter.com/nckplsn)
 - KVO support added by [Adam Ernst](http://www.adamernst.com/)
 - ARC support and changes to the interface by

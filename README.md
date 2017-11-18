@@ -1,3 +1,7 @@
+# DEPRECATED
+
+I don't use this library, as you can probably tell by how long it's been since it's been updated. I've marked it as deprecated on CocoaPods and will be removing it in 2018. If anybody would like to take over the pod let me know and I'll try and get it done.
+
 # NPReachability
 - Originally By [Nick Paulson](http://twitter.com/nckplsn)
 - KVO support added by [Adam Ernst](http://www.adamernst.com/)
